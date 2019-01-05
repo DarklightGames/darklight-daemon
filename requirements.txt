@@ -1,0 +1,10 @@
+argh==0.26.2
+certifi==2018.11.29
+chardet==3.0.4
+idna==2.8
+pathtools==0.1.2
+python-dotenv==0.10.1
+PyYAML==3.13
+requests==2.21.0
+urllib3==1.24.1
+watchdog==0.9.0
