@@ -84,7 +84,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', action='append')
     parser.add_argument('--skip_backlog', action='store_true')
-    args = parser.parse_args(['--path', r'C:\Users\Colin\Desktop\testlogs'])
+    args = parser.parse_args()
     paths = args.path
 
     if paths is None or len(paths) == 0:
