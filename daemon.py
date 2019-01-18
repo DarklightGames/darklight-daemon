@@ -75,10 +75,12 @@ def send_log(file):
         pass
 
 class DaemonFileHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        if os.path.splitext(event.src_path)[1] == '.log':
+    def on_moved(self, event):
+    	# The game writes to a .log.tmp file then later renames (moves) it
+    	# with the correct extension.
+        if os.path.splitext(event.dest_path)[1] == '.log':
             print('A wild log file appeared!')
-            send_log(event.src_path)
+            send_log(event.dest_path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
