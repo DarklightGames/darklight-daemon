@@ -115,7 +115,7 @@ if __name__ == '__main__':
         print('Retrying {} rejected files...'.format(len(manifest.rejected)))
         for path in paths:
             for file in glob.glob(os.path.join(path, '*.log')):
-                if not manifest.is_rejected(os.path.basename(file)):
+                if manifest.is_rejected(os.path.basename(file)):
                     send_log(file)
 
     print('Backlog cleared.')
