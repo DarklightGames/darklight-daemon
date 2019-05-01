@@ -29,6 +29,9 @@ class LogManifest(object):
     def is_handled(self, file) -> bool:
         return file in self.accepted or file in self.rejected
 
+    def is_rejected(self, file) -> bool:
+        return file in self.rejected
+
     def add_accepted(self, file):
         self.accepted.add(file)
         self.save()
@@ -76,7 +79,7 @@ def send_log(file):
 
 class DaemonFileHandler(FileSystemEventHandler):
     def on_moved(self, event):
-    	# The game writes to a .log.tmp file then later renames (moves) it
+        # The game writes to a .log.tmp file then later renames (moves) it
     	# with the correct extension.
         if os.path.splitext(event.dest_path)[1] == '.log':
             print('A wild log file appeared!')
@@ -86,6 +89,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', action='append')
     parser.add_argument('--skip_backlog', action='store_true')
+    parser.add_argument('--retry_rejected', action='store_true', default=False)
     args = parser.parse_args()
     paths = args.path
 
@@ -93,23 +97,31 @@ if __name__ == '__main__':
         parser.print_usage()
         raise Exception('No paths specified.')
 
-    event_handler = DaemonFileHandler()
-    observers = []
-
     # For each path, go through all the *.log files (perhaps a CRC-based method
     # would be better instead of filename, since file names can overlap.
     # The other option would be to put the manifest in the path itself
     # then we can still do file based stuff.
     if not args.skip_backlog:
+        print('Clearing backlog...')
         for path in paths:
             # For each path, check if there are unhandled log
             # files and then attempt to send them all to
             # the server.
-            for file in  glob.glob(os.path.join(path, '*.log')):
+            for file in glob.glob(os.path.join(path, '*.log')):
                 if not manifest.is_handled(os.path.basename(file)):
                     send_log(file)
 
+    if args.retry_rejected:
+        print('Retrying {} rejected files...'.format(len(manifest.rejected)))
+        for path in paths:
+            for file in glob.glob(os.path.join(path, '*.log')):
+                if not manifest.is_rejected(os.path.basename(file)):
+                    send_log(file)
+
     print('Backlog cleared.')
+
+    event_handler = DaemonFileHandler()
+    observers = []
 
     for path in paths:
         # Set up a new file observer in each specified path.
