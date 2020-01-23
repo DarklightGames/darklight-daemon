@@ -63,7 +63,6 @@ def send_log(file):
         # been parsed (409). Let's throw it in the acepted pile.
         print('Log file processed ({})'.format(response.status_code))
         manifest.add_accepted(os.path.basename(file))
-        pass
     elif response.status_code == 500:
         print('Log file rejected ({})'.format(response.status_code))
         # Internal server error while parsing the log, throw it in the rejected pile.
@@ -74,7 +73,7 @@ def send_log(file):
     else:
         # The server rejected it for an unknown reason. We will do nothing
         # and the daemon can attempt to send it up again in the future.
-        print('Communication breakdown, forget it!')
+        print('Communication breakdown, forget it! (' + str(response.status_code) + ')')
         pass
 
 class DaemonFileHandler(FileSystemEventHandler):
